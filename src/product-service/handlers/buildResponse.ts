@@ -11,7 +11,6 @@ export const buildResponse = <T>(
 ): BuildResponseType => ({
   statusCode: statusCode,
   headers: {
-    "Content-Type": "application/json",
     "Access-Control-Allow-Credentials": true,
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "*",

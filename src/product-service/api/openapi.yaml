@@ -1,0 +1,84 @@
+openapi: 3.0.0
+info:
+  title: Aws Swagger
+  description: Swagger
+servers:
+  - url: 'https://84uh79u0x4.execute-api.eu-west-1.amazonaws.com'
+
+paths:
+  /products:
+    get:
+      tags:
+        - products
+      summary: Get list of products
+      description: Get list of products
+      operationId: getProductsList
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Products'
+        '400':
+          description: Products not found
+
+  /product/{productId}:
+    get:
+      tags:
+        - products
+      summary: Find product by ID
+      description: Returns a product by its ID
+      operationId: getProductsById
+      parameters:
+        - name: productId
+          in: path
+          description: ID of product to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Product not found
+
+components:
+  schemas:
+    Products:
+      type: array
+      items:
+        $ref: '#/components/schemas/Product'
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        discountPercentage:
+          type: number
+        rating:
+          type: number
+        stock:
+          type: number
+        brand:
+          type: string
+        category:
+          type: string
+        thumbnail:
+          type: string
+        images:
+          type: array
+          items:
+            type: string

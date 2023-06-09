@@ -13,10 +13,12 @@ export const handler = async (event: {
   try {
     const pathParameters = event.pathParameters || {};
     const product = getProduct(pathParameters);
+
     if (product) {
       return buildResponse(200, product);
+    } else {
+      throw new Error("Product not found");
     }
-    throw new Error("Product not found");
   } catch (error: unknown) {
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
