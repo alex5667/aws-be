@@ -375,7 +375,7 @@ export const products: Product[] = [
     ],
   },
   {
-    id: 20,
+    id: 21,
     title: "Freckle Treatment Cream- 15gm",
     description:
       "Fair & Clear is Pakistan's only pure Freckle cream which helpsfade Freckles, Darkspots and pigments. Mercury level is 0%, so there are no side effects.",
