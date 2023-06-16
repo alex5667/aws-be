@@ -1,30 +1,50 @@
+import { DynamoDBDocument } from "@aws-sdk/lib-dynamodb";
+import { DynamoDB } from "@aws-sdk/client-dynamodb";
+import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { buildResponse } from "./buildResponse";
-import { products } from "../db/products";
-import { APIGatewayProxyEventPathParameters } from "aws-lambda";
 
-const getProduct = (pathParameters: APIGatewayProxyEventPathParameters) => {
-  const productId = Number(pathParameters.productId);
-  return products.find((product) => product.id === productId);
-};
+const dynamo = DynamoDBDocument.from(new DynamoDB({}));
 
-export const handler = async (event: {
-  pathParameters: { productId?: string };
-}) => {
+export const handler = async (
+  event: APIGatewayProxyEvent
+): Promise<APIGatewayProxyResult> => {
+  console.log(event);
+  const id = event?.pathParameters?.productId;
+
+  if (!id || !event.pathParameters) {
+    return buildResponse(400, "Missing product ID");
+  }
+
   try {
-    const pathParameters = event.pathParameters || {};
-    const product = getProduct(pathParameters);
-
-    if (product) {
-      return buildResponse(200, product);
-    } else {
-      throw new Error("Product not found");
-    }
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-    const code = errorMessage === "Product not found" ? 404 : 500;
-    return buildResponse(code, {
-      message: errorMessage,
+    const productResult = await dynamo.get({
+      TableName: process.env.TABLENAME!,
+      Key: {
+        id,
+      },
     });
+
+    const stockResult = await dynamo.get({
+      TableName: process.env.STOCKTABLENAME!,
+      Key: {
+        product_id: id,
+      },
+    });
+
+    const stock = stockResult.Item;
+    const product = productResult.Item;
+
+    if (!product) {
+      return buildResponse(400, "Product not found");
+    }
+
+    const response = {
+      ...product,
+      count: stock?.count,
+    };
+
+    return buildResponse(200, response);
+  } catch (error) {
+    console.error(error);
+    return buildResponse(500, "An error occurred while retrieving the product");
   }
 };
