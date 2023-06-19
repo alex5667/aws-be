@@ -14,6 +14,7 @@ export const handler = async (
     const productsScan = await dynamo.scan({
       TableName: process.env.TABLENAME!,
     });
+    console.log(productsScan);
 
     const stocksScan = await dynamo.scan({
       TableName: process.env.STOCKTABLENAME!,
@@ -21,7 +22,8 @@ export const handler = async (
 
     const products = productsScan.Items ?? [];
     const stocks = stocksScan.Items ?? [];
-
+    console.log(products);
+    console.log(stocks);
     products.forEach((product) => {
       stocks.forEach((stock) => {
         if (product.id === stock.product_id) {

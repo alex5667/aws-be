@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { APIGatewayProxyEvent } from "aws-lambda";
 import { buildResponse } from "./buildResponse";
 import Joi from "joi";
+
 interface Product {
   title: string;
   description?: string;
@@ -11,7 +12,8 @@ interface Product {
   image?: string;
   id: string;
 }
-const dynamo = DynamoDBDocument.from(new DynamoDBClient({}));
+
+const dynamoDb = DynamoDBDocument.from(new DynamoDBClient({}));
 const TableName = process.env.TABLENAME!;
 const StockTable = process.env.STOCKTABLENAME!;
 
@@ -24,9 +26,11 @@ const schema = Joi.object({
 });
 
 export const handler = async (event: APIGatewayProxyEvent) => {
-  const body =
+  console.log(event);
+
+  const requestBody =
     typeof event.body === "string" ? JSON.parse(event.body) : event.body;
-  const product: Product = body;
+  const product: Product = requestBody;
   const id = uuidv4();
   product.id = id;
 
@@ -39,30 +43,32 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
   if (!validationError) {
     try {
-      await dynamo.send(
+      await dynamoDb.send(
         new PutCommand({
           TableName: TableName,
           Item: product,
         })
       );
-      await dynamo.send(
+      await dynamoDb.send(
         new PutCommand({
           TableName: StockTable,
           Item: stock,
         })
       );
 
-      const finalProduct = { ...product, count: stock.count };
-      const successMessage = ["Product was created successfully", finalProduct];
-      console.log(successMessage);
-      return buildResponse(200, successMessage);
+      const updatedProduct = { ...product, count: stock.count };
+      const successMessage = "Product created successfully";
+      console.log(successMessage, updatedProduct);
+      return buildResponse(200, [successMessage, updatedProduct]);
     } catch (err) {
-      return buildResponse(500, err);
+      const errorMessage = "Failed to insert data into databases";
+      console.error(errorMessage, err);
+      return buildResponse(500, errorMessage);
     }
   } else {
-    const failMessage = `Invalid data: ${validationError.details
+    const validationErrorMessage = `Invalid data: ${validationError.details
       .map((detail) => detail.message)
       .join(", ")}`;
-    return buildResponse(400, failMessage);
+    return buildResponse(400, validationErrorMessage);
   }
 };

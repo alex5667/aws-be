@@ -41,7 +41,7 @@ export const handler = async () => {
       image: products[i].thumbnail,
     };
 
-    console.log("Adding item:", item);
+    console.log(item);
 
     const stock = {
       product_id: id,
@@ -49,7 +49,7 @@ export const handler = async () => {
     };
 
     if (productsInDb.some((product) => product.title === item.title)) {
-      console.log("Product already exists in the database:", item.title);
+      console.log("This product is already in DB");
       notAdded.push(item.title);
     } else {
       try {
@@ -69,10 +69,10 @@ export const handler = async () => {
 
         added.push(item);
       } catch (err) {
-        console.log("Error:", err);
+        console.log(err);
         return buildResponse(
           400,
-          `Failed to insert data into databases ${TableName} and ${StockTable}`
+          `Failed to insert data to databases ${TableName} and ${StockTable}`
         );
       }
     }
@@ -80,7 +80,7 @@ export const handler = async () => {
     if (i === products.length - 1) {
       return buildResponse(
         200,
-        `${notAdded.length} products were already in the database, ${added.length} products successfully added to the database`
+        `${notAdded.length} products were already in DB, ${added.length} products successfully added to DB`
       );
     }
   }
