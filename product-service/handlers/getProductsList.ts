@@ -1,5 +1,5 @@
-import { Handler } from "aws-lambda";
-import { getAllProducts } from "../utils/utils";
+import { Handler } from 'aws-lambda';
+import { getAllProducts } from '../db-rds/rds_utils';
 import { buildResponse } from "../services/buildResponse";
 
 export const getProductsList: Handler = async (event) => {

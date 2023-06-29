@@ -1,6 +1,6 @@
 import { Handler } from "aws-lambda";
 import { buildResponse } from "../services/buildResponse";
-import { addProduct } from "../utils/utils";
+import { createProductKnex } from "../db-rds/rds_utils";
 import { Product, ProductCreated, Stock } from "../types/types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -10,9 +10,16 @@ export const createProduct: Handler = async (event) => {
   try {
     if (event.body) {
       const body: ProductCreated = JSON.parse(event.body);
-      const {  title,description, price, count } = body;
+      const { title, description, price, count } = body;
       if (
-        [!title, !description, Number(price) < 0, isNaN(Number(price)), Number(count) < 0, isNaN(Number(count))].some((condition) => condition)
+        [
+          !title,
+          !description,
+          Number(price) < 0,
+          isNaN(Number(price)),
+          Number(count) < 0,
+          isNaN(Number(count)),
+        ].some((condition) => condition)
       ) {
         return buildResponse(400, "Invalid input data");
       }
@@ -21,7 +28,7 @@ export const createProduct: Handler = async (event) => {
       const product: Product = { description, id, title, price };
       const stock: Stock = { product_id: id, count };
 
-      await addProduct(product, stock);
+      await createProductKnex(product, stock);
 
       return buildResponse(
         200,

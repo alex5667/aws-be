@@ -4,6 +4,7 @@ export interface ProductCreated {
   title: string;
   count: number;
 }
+
 export interface Product {
   id: string;
   description: string;

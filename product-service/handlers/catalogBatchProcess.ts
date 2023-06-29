@@ -2,9 +2,10 @@ import { Handler } from "aws-lambda";
 import { createProduct } from "./createProduct";
 import { Context } from "aws-lambda";
 import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
+import { buildResponse } from "../services/buildResponse";
 const sns = new SNSClient({});
 
-export const catalogBatchProcessHandler: Handler = async (event) => {
+export const catalogBatchProcess: Handler = async (event) => {
   console.log("catalogBatchProcess", JSON.stringify(event, null, 2));
 
   try {
@@ -15,12 +16,12 @@ export const catalogBatchProcessHandler: Handler = async (event) => {
         () => {}
       );
 
-      console.log("newProductData", newProductResponse);
+      console.log("newProductResponse", newProductResponse);
       const parsedMessage = JSON.parse(newProductResponse.body).message;
 
       const snsParams = {
         Subject: "Product Created",
-        Message: `A new product has been created: ${JSON.stringify(
+        Message: `New product created: ${JSON.stringify(
           parsedMessage
         )}`,
         TopicArn: process.env.CREATE_PRODUCT_TOPIC_ARN,
@@ -33,24 +34,18 @@ export const catalogBatchProcessHandler: Handler = async (event) => {
       };
       if (newProductResponse.statusCode === 200) {
         await sns.send(new PublishCommand(snsParams));
-        console.log("SNS event sent:", snsParams);
+        console.log("Successfully published SNS message:", snsParams);
       } else {
-        console.log("SNS event not sent:", snsParams);
+        console.log("Failed to publish SNS message:", snsParams);
       }
     }
 
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: event.Records }),
-    };
-  } catch (err: any) {
-    console.error("Error by processing file:", err);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({
-        message: `Error creating product: ${err.message}`,
-      }),
-    };
+    return buildResponse(200, event.Records);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return buildResponse(500, `Error : ${err.message}`);
+    } else {
+      return buildResponse(500, `Unknown error occurred`);
+    }
   }
 };

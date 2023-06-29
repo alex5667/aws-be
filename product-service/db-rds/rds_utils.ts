@@ -1,33 +1,10 @@
-import Knex from "knex";
-import { config as dotenvConfig } from "dotenv";
 import { Product, Stock } from "../types/types";
+import Knex from "knex";
+import knexConfig from "./knexfile";
 
-dotenvConfig({ path: "../.env" });
+const knex = Knex(knexConfig);
 
-export const config = {
-  client: "pg",
-  connection: {
-    host: process.env.RDS_HOST,
-    port: Number(process.env.RDS_PORT),
-    user: process.env.RDS_USER,
-    password: process.env.RDS_PASSWORD,
-    database: process.env.RDS_DATABASE,
-  },
-  migrations: {
-    directory: "./services",
-    tableName: "createTable",
-    extension: "ts",
-  },
-  seeds: {
-    directory: "./services",
-    tableName: "fill-tables",
-    extension: "ts",
-  },
-};
-
-export const knex = Knex(config);
-
-export const getAllProducts = async () => {
+export const getAllProducts = async (): Promise<Product[]> => {
   const products = await knex("products")
     .select(
       "products.id",
@@ -41,7 +18,9 @@ export const getAllProducts = async () => {
   return products;
 };
 
-export const getByIdProduct = async (id: string) => {
+export const getByIdProduct = async (
+  id: string
+): Promise<Product | undefined> => {
   const product = await knex("products")
     .select(
       "products.id",
@@ -57,14 +36,17 @@ export const getByIdProduct = async (id: string) => {
   return product;
 };
 
-export const addProduct = async (product: Product, stock: Stock) => {
+export const createProductKnex = async (
+  product: Product,
+  stock: Stock
+): Promise<void> => {
   try {
     await knex.transaction(async (trx) => {
       await trx("products").insert(product);
       await trx("stocks").insert(stock);
     });
   } catch (err) {
-    console.error("Failed to create product :", err);
+    console.error("Error creating product in transaction:", err);
     throw err;
   }
 };

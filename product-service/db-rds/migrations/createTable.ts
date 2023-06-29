@@ -1,6 +1,6 @@
 import { Knex } from 'knex';
 
-export async function createProductTables(knex: Knex) {
+export async function up(knex: Knex) {
   await knex.schema.createTable('products', (table) => {
     table.string('id').primary();
     table.string('description').notNullable();
@@ -14,7 +14,7 @@ export async function createProductTables(knex: Knex) {
   });
 }
 
-export async function dropProductTables(knex: Knex) {
+export async function down(knex: Knex) {
   await knex.schema.dropTable('stocks');
   await knex.schema.dropTable('products');
 }

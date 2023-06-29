@@ -5,15 +5,12 @@ export interface BuildResponseType {
   };
   body: string;
 }
+
 export const buildResponse = <T>(
   statusCode: number,
   body: T
 ): BuildResponseType => ({
   statusCode: statusCode,
-  headers: {
-    "Access-Control-Allow-Credentials": true,
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "*",
-  },
+  headers: { "Content-Type": "application/json" },
   body: JSON.stringify(body),
 });

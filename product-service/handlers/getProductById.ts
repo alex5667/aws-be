@@ -1,6 +1,6 @@
-import { Handler } from "aws-lambda";
-import { getByIdProduct } from "../utils/utils";
-import { buildResponse } from "../services/buildResponse";
+import { Handler } from 'aws-lambda';
+import { getByIdProduct } from '../db-rds/rds_utils';
+import { buildResponse } from '../services/buildResponse';
 
 export const getProductById: Handler = async (event)=> {
   console.log("Event getProductById", event);
@@ -26,3 +26,4 @@ export const getProductById: Handler = async (event)=> {
     }
   }
 };
+

@@ -1,19 +1,17 @@
 {
   "name": "product-service",
   "version": "0.1.0",
-  "bin": {
-    "product-service": "bin/product-service.js"
-  },
-  "scripts": {
+ 
+  "scripts":  {
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
     "cdk": "cdk",
-    "cdk:deploy": "npx cdk deploy",
-    "cdk:destroy": "npx cdk destroy",
-    "rds:create": "npx ts-node ./node_modules/.bin/knex migrate:latest --knexfile ./db/knexfile.ts",
-    "rds:drop": "npx ts-node ./node_modules/.bin/knex migrate:rollback --knexfile ./db/knexfile.ts",
-    "rds:fill": "npx ts-node ./node_modules/.bin/knex seed:run --knexfile ./db/knexfile.ts"
+    "cdk:deploy": "cdk deploy",
+    "cdk:destroy": "cdk destroy",
+    "rds:migrate": "ts-node --transpile-only -r tsconfig-paths/register ./node_modules/.bin/knex migrate:latest --knexfile ./db/knexfile.ts",
+    "rds:seed": "ts-node --transpile-only -r tsconfig-paths/register ./node_modules/.bin/knex seed:run --knexfile ./db/knexfile.ts",
+    "rds:rollback": "ts-node --transpile-only -r tsconfig-paths/register ./node_modules/.bin/knex migrate:rollback --knexfile ./db/knexfile.ts"
   },
   "devDependencies": {
     "@aws-cdk/aws-apigatewayv2-integrations-alpha": "^2.82.0-alpha.0",
@@ -32,7 +30,6 @@
   "dependencies": {
     "@aws-cdk/aws-apigatewayv2-alpha": "^2.82.0-alpha.0",
     "@aws-sdk/client-dynamodb": "^3.348.0",
-    "@types/knex": "^0.16.1",
     "aws-cdk-lib": "2.81.0",
     "constructs": "^10.0.0",
     "dotenv": "^16.1.4",

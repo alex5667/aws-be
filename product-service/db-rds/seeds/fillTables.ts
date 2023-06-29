@@ -2,7 +2,7 @@ import { Knex } from 'knex';
 import * as path from 'path';
 import * as fs from 'fs';
 
-export async function seed(knex: Knex) {
+export async function seed(knex: Knex): Promise<void> {
   await knex('stocks').del();
   await knex('products').del();
 
